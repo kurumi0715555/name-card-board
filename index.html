@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <meta name="description" content="デジタルホワイトボードにネームカードを配置。ドラッグで自由に移動、グループ分けや座席表作成に。無料・登録不要。">
+    
+    
+    <link rel="stylesheet" href="common/css/common.css">
+    <link rel="stylesheet" href="common/css/modal.css">
+    <link rel="stylesheet" href="common/css/landscape-guard.css">
+    <link rel="stylesheet" href="css/name-card-board.css">
+    <link rel="stylesheet" href="common/vendor/fontawesome/css/fontawesome.css">
+<link rel="stylesheet" href="common/vendor/fontawesome/css/solid.css">
+    <script src="vendor/html2canvas/html2canvas.min.js"></script>
+    <script src="vendor/jspdf/jspdf.umd.min.js"></script>
+<title>ネームカードボード</title>
+<link rel="stylesheet" href="oss/standalone.css">
+<script defer src="oss/standalone.js"></script>
+</head>
+
+<body>
+    <button id="classModeToggle" class="class-mode-toggle">
+        <i id="classModeIcon" class="fas fa-chalkboard"></i>
+        <span id="classModeText">授業モード OFF</span>
+    </button>
+
+    <div class="site-wrapper">
+        <aside class="ad-left">
+            <!-- Ads injected by common-ads.js -->
+        </aside>
+
+        <div class="container">
+            <header>
+                <!-- Header banner will be injected by common-header.js -->
+                <h1><i class="fas fa-chalkboard-user"></i> ネームカードボード</h1>
+                <p class="subtitle">クラスの席配置を一覧表示・印刷</p>
+            </header>
+
+            <main>
+                <!-- メインツールバー -->
+                <div class="toolbar">
+                    <div class="toolbar-group">
+                        <button class="mode-btn active" data-mode="move" title="移動モード">
+                            <i class="fas fa-hand"></i> <span class="btn-label">移動</span>
+                        </button>
+                        <button class="mode-btn" data-mode="draw" title="描画モード">
+                            <i class="fas fa-pen"></i> <span class="btn-label">描画</span>
+                        </button>
+                        <button class="mode-btn" data-mode="text" title="テキストモード">
+                            <i class="fas fa-font"></i> <span class="btn-label">テキスト</span>
+                        </button>
+                    </div>
+                    <div class="toolbar-group">
+                        <button id="nameInputBtn" class="btn btn-primary btn-small">
+                            <i class="fas fa-user-plus"></i> <span class="btn-label">名前入力</span>
+                        </button>
+                    </div>
+                    <div class="toolbar-group">
+                        <span class="toolbar-group-label">途中保存</span>
+                        <button id="saveStateBtn" class="btn btn-secondary btn-small" title="カードの位置や描画をファイルに保存。明日の続きから再開できます">
+                            <i class="fas fa-download"></i> <span class="btn-label">保存</span>
+                        </button>
+                        <button id="loadStateBtn" class="btn btn-secondary btn-small" title="保存したファイルを読み込んで、前回の状態を復元します">
+                            <i class="fas fa-upload"></i> <span class="btn-label">読込</span>
+                        </button>
+                        <input type="file" id="loadFileInput" accept=".json" style="display: none;">
+                    </div>
+                    <div class="toolbar-group">
+                        <span class="toolbar-group-label">出力</span>
+                        <button id="exportImgBtn" class="btn btn-secondary btn-small" title="ボードの見た目をそのまま画像ファイルとして保存します">
+                            <i class="fas fa-image"></i> <span class="btn-label">画像</span>
+                        </button>
+                        <button id="exportPdfBtn" class="btn btn-secondary btn-small" title="ボードの見た目をそのままPDFファイルとして保存します">
+                            <i class="fas fa-file-pdf"></i> <span class="btn-label">PDF</span>
+                        </button>
+                    </div>
+                    <div class="toolbar-group">
+                        <button id="fullscreenBtn" class="btn btn-secondary btn-small" title="全画面表示">
+                            <i class="fas fa-expand"></i> <span class="btn-label">全画面</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- サブツールバー（モードに応じて切り替え） -->
+                <div class="sub-toolbar">
+                    <!-- 描画ツール -->
+                    <div class="sub-toolbar-content" id="drawTools" style="display: none;">
+                        <div class="draw-mode-toggle">
+                            <button id="penModeBtn" class="btn btn-small active" title="ペン"><i class="fas fa-pen"></i> ペン</button>
+                            <button id="eraserModeBtn" class="btn btn-small" title="消しゴム"><i class="fas fa-eraser"></i> 消しゴム</button>
+                        </div>
+                        <div id="penControls" class="sub-toolbar-group">
+                            <label>色:</label>
+                            <div class="pen-color-presets">
+                                <button class="pen-color-btn active" data-pen-color="#333333" style="background:#333333" title="黒"></button>
+                                <button class="pen-color-btn" data-pen-color="#e53935" style="background:#e53935" title="赤"></button>
+                                <button class="pen-color-btn" data-pen-color="#1e88e5" style="background:#1e88e5" title="青"></button>
+                                <button class="pen-color-btn" data-pen-color="#43a047" style="background:#43a047" title="緑"></button>
+                                <button class="pen-color-btn" data-pen-color="#fb8c00" style="background:#fb8c00" title="橙"></button>
+                                <button class="pen-color-btn" data-pen-color="#8e24aa" style="background:#8e24aa" title="紫"></button>
+                            </div>
+                            <input type="color" id="penColor" value="#333333" title="カスタム色">
+                            <label>太さ:</label>
+                            <input type="range" id="penWidth" min="1" max="10" value="3">
+                        </div>
+                        <div id="eraserControls" class="sub-toolbar-group" style="display: none;">
+                            <label>サイズ:</label>
+                            <input type="range" id="eraserWidth" min="10" max="60" value="20">
+                        </div>
+                        <button id="undoBtn" class="btn btn-small">
+                            <i class="fas fa-rotate-left"></i> 戻す
+                        </button>
+                        <button id="clearDrawBtn" class="btn btn-small btn-danger">
+                            <i class="fas fa-trash"></i> 描画クリア
+                        </button>
+                    </div>
+
+                    <!-- カードツール（カード選択時に表示） -->
+                    <div class="sub-toolbar-content" id="cardTools" style="display: none;">
+                        <label>カード色:</label>
+                        <div class="color-palette" id="cardColorPalette">
+                            <button class="color-swatch" data-color="#ffeb3b" style="background:#ffeb3b" title="黄"></button>
+                            <button class="color-swatch" data-color="#64b5f6" style="background:#64b5f6" title="青"></button>
+                            <button class="color-swatch" data-color="#ef9a9a" style="background:#ef9a9a" title="赤"></button>
+                            <button class="color-swatch" data-color="#81c784" style="background:#81c784" title="緑"></button>
+                            <button class="color-swatch" data-color="#ffb74d" style="background:#ffb74d" title="橙"></button>
+                            <button class="color-swatch" data-color="#ffffff" style="background:#ffffff" title="白"></button>
+                        </div>
+                        <button id="deleteCardBtn" class="btn btn-small btn-danger">
+                            <i class="fas fa-trash"></i> 削除
+                        </button>
+                    </div>
+
+                    <!-- テキストツール（入力時） -->
+                    <div class="sub-toolbar-content" id="textTools" style="display: none;">
+                        <label>色:</label>
+                        <input type="color" id="textColor" value="#333333">
+                        <label>サイズ:</label>
+                        <select id="textSize">
+                            <option value="14">小</option>
+                            <option value="18" selected>中</option>
+                            <option value="24">大</option>
+                            <option value="32">特大</option>
+                        </select>
+                    </div>
+
+                    <!-- テキスト選択時ツール -->
+                    <div class="sub-toolbar-content" id="selectedTextTools" style="display: none;">
+                        <button id="editTextBtn" class="btn btn-small btn-primary">
+                            <i class="fas fa-pen-to-square"></i> 編集
+                        </button>
+                        <button id="deleteTextBtn" class="btn btn-small btn-danger">
+                            <i class="fas fa-trash"></i> 削除
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ホワイトボード -->
+                <div class="whiteboard-wrapper">
+                    <div class="whiteboard mode-move" id="whiteboard">
+                        <canvas id="drawCanvas"></canvas>
+                        <div id="eraserCursor"></div>
+                    </div>
+                </div>
+
+                <!-- 使い方 -->
+                <div class="instructions">
+                    <h3><i class="fas fa-info-circle"></i> 使い方</h3>
+                    <ol>
+                        <li><strong>名前入力</strong>：「名前入力」ボタンから生徒の名前を一括入力します（エクセルからの貼り付けもOK）</li>
+                        <li><strong>カードの移動</strong>：移動モードでカードをドラッグして自由に配置できます。クリックで選択すると色変更・削除が可能です</li>
+                        <li><strong>手書き描画</strong>：描画モードでホワイトボードに自由に書き込めます</li>
+                        <li><strong>テキスト追加</strong>：テキストモードでクリックした場所に文字を配置できます</li>
+                        <li><strong>途中保存・読込</strong>：配置状態をファイルに保存して、次回読み込めます</li>
+                        <li><strong>出力</strong>：ボードの状態を画像（JPEG）またはPDFとして保存できます</li>
+                    </ol>
+                    <p class="note"><i class="fas fa-lightbulb"></i>
+                        <strong>ヒント</strong>：全画面ボタンでプロジェクターや電子黒板での提示に最適な表示になります。
+                    </p>
+                </div>
+            </main>
+
+            <!-- メインとフッターの間の横長広告 -->
+            <div class="ad-horizontal">
+                <div class="ad-label">広告</div>
+                <div class="ad-horizontal-content">
+                    <i class="fas fa-rectangle-ad"></i>
+                    <p>728×90 レクタングル（大）バナー広告</p>
+                </div>
+            </div>
+
+            <footer>
+                <!-- Footer will be injected by common-footer.js -->
+            </footer>
+        </div>
+
+        <aside class="ad-right">
+            <!-- Ads injected by common-ads.js -->
+        </aside>
+    </div>
+
+    <!-- 名前入力モーダル -->
+    <div class="modal-overlay" id="nameModal" style="display: none;">
+        <div class="modal">
+            <div class="modal-header">
+                <h3><i class="fas fa-user-plus"></i> 名前入力</h3>
+                <button id="closeModalBtn" class="modal-close"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <textarea id="nameInput" placeholder="1行に1人の名前を入力&#10;（エクセルからの貼り付けもOK）&#10;&#10;例：&#10;田中太郎&#10;佐藤花子&#10;鈴木次郎" rows="10"></textarea>
+                <div class="modal-options">
+                    <label>カード色:</label>
+                    <div class="color-palette">
+                        <button class="color-swatch modal-color active" data-color="#ffeb3b" style="background:#ffeb3b"></button>
+                        <button class="color-swatch modal-color" data-color="#64b5f6" style="background:#64b5f6"></button>
+                        <button class="color-swatch modal-color" data-color="#ef9a9a" style="background:#ef9a9a"></button>
+                        <button class="color-swatch modal-color" data-color="#81c784" style="background:#81c784"></button>
+                        <button class="color-swatch modal-color" data-color="#ffb74d" style="background:#ffb74d"></button>
+                        <button class="color-swatch modal-color" data-color="#ffffff" style="background:#ffffff"></button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="generateCardsBtn" class="btn btn-primary">
+                    <i class="fas fa-plus-circle"></i> カード生成
+                </button>
+                <button id="clearAllBtn" class="btn btn-danger">
+                    <i class="fas fa-trash"></i> 全て削除
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="common/js/class-mode.js"></script>
+    <script src="common/js/common-modal.js"></script>
+    
+    
+    
+    
+    
+    <script type="module" src="dist/name-card-board.js"></script>
+    <script src="common/js/landscape-guard.js"></script>
+</body>
+
+</html>

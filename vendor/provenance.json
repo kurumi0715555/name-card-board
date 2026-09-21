@@ -1,0 +1,36 @@
+[
+  {
+    "name": "html2canvas",
+    "version": "1.4.1",
+    "license": "MIT",
+    "files": [
+      {
+        "path": "vendor/html2canvas/html2canvas.min.js",
+        "sha256": "e87e550794322e574a1fda0c1549a3c70dae5a93d9113417a429016838eab8cb",
+        "url": "https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"
+      },
+      {
+        "path": "vendor/html2canvas/LICENSE",
+        "sha256": "86200ce4e92d9a22c41c8647a55f7a5fddff304ff89b4d36ecc699ed8c123d2c",
+        "url": "https://raw.githubusercontent.com/niklasvh/html2canvas/v1.4.1/LICENSE"
+      }
+    ]
+  },
+  {
+    "name": "jspdf",
+    "version": "2.5.1",
+    "license": "MIT",
+    "files": [
+      {
+        "path": "vendor/jspdf/jspdf.umd.min.js",
+        "sha256": "98ccf17aa10c20bb1301762618fcc9b6ab3a4e7f26b6071d64d0b41154df3875",
+        "url": "https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"
+      },
+      {
+        "path": "vendor/jspdf/LICENSE",
+        "sha256": "2d26bfab8a36d2250602c7a7597237e180c5cd3517acc108126e3cb399f483c8",
+        "url": "https://raw.githubusercontent.com/parallax/jsPDF/v2.5.1/LICENSE"
+      }
+    ]
+  }
+]

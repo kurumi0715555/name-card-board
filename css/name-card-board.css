@@ -1,0 +1,472 @@
+/* ネームカードボード専用スタイル */
+/* 使い方は common/css/components.css で定義 */
+
+/* ツールバー */
+.toolbar {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: var(--white);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-small);
+    margin-bottom: var(--spacing-sm);
+    flex-wrap: wrap;
+}
+
+.toolbar-group {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.toolbar-group:not(:last-child) {
+    padding-right: var(--spacing-md);
+    border-right: 1px solid var(--gray-light);
+}
+
+.toolbar-group-label {
+    display: block;
+    font-size: 0.7em;
+    color: var(--gray-dark);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* モードボタン */
+.mode-btn {
+    padding: 8px 14px;
+    border: 2px solid var(--gray);
+    border-radius: var(--border-radius);
+    background: var(--white);
+    cursor: pointer;
+    font-size: 0.9em;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: var(--transition-smooth);
+}
+
+.mode-btn:hover {
+    background: var(--gray-lighter);
+    border-color: var(--primary-color);
+}
+
+.mode-btn.active {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: var(--white);
+}
+
+/* サブツールバー */
+.sub-toolbar {
+    min-height: 42px;
+    margin-bottom: var(--spacing-sm);
+}
+
+.sub-toolbar-content {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-xs) var(--spacing-md);
+    background: var(--gray-lighter);
+    border-radius: var(--border-radius);
+    flex-wrap: wrap;
+}
+
+.sub-toolbar-content label {
+    font-size: 0.85em;
+    font-weight: 600;
+    color: var(--gray-darker);
+    white-space: nowrap;
+}
+
+/* カラーパレット */
+.color-palette {
+    display: flex;
+    gap: 4px;
+}
+
+.color-swatch {
+    width: 28px;
+    height: 28px;
+    border: 2px solid var(--gray);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: transform 0.15s;
+}
+
+.color-swatch[data-color="#ffffff"] {
+    border-color: var(--gray);
+}
+
+.color-swatch:hover {
+    transform: scale(1.2);
+}
+
+.color-swatch.active {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px var(--primary-color);
+}
+
+/* ペン色プリセット */
+.pen-color-presets {
+    display: flex;
+    gap: 4px;
+}
+
+.pen-color-btn {
+    width: 26px;
+    height: 26px;
+    border: 2px solid rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: transform 0.15s;
+    padding: 0;
+}
+
+.pen-color-btn:hover {
+    transform: scale(1.2);
+}
+
+.pen-color-btn.active {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px var(--primary-color);
+}
+
+/* ペン太さスライダー */
+#penWidth {
+    width: 80px;
+}
+
+/* 消しゴムサイズスライダー */
+#eraserWidth {
+    width: 80px;
+}
+
+/* ペン/消しゴム切替 */
+.draw-mode-toggle {
+    display: flex;
+    gap: 4px;
+    padding-right: var(--spacing-md);
+    border-right: 1px solid var(--gray-light);
+}
+
+/* サブツールバーグループ */
+.sub-toolbar-group {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding-right: var(--spacing-md);
+    border-right: 1px solid var(--gray-light);
+}
+
+/* 消しゴムカーソル */
+#eraserCursor {
+    display: none;
+    position: absolute;
+    border-radius: 50%;
+    border: 2px dashed var(--gray-darker);
+    pointer-events: none;
+    z-index: 100;
+    transform: translate(-50%, -50%);
+    /* 消しゴム円の半透明背景：特化値（残置） */
+    background: rgba(200, 200, 200, 0.2);
+}
+
+.whiteboard.mode-draw {
+    cursor: none;
+}
+
+/* ホワイトボード */
+.whiteboard-wrapper {
+    border: 2px solid var(--gray);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-medium);
+}
+
+/* ホワイトボード本体：機能上の純白＋方眼ドット（視覚補助）。テーマ色として残置 */
+.whiteboard {
+    position: relative;
+    width: 100%;
+    min-height: 500px;
+    height: 60vh;
+    background: #ffffff;
+    overflow: hidden;
+    touch-action: none;
+    background-image: radial-gradient(circle, #e0e0e0 1px, transparent 1px);
+    background-size: 20px 20px;
+}
+
+.whiteboard.mode-move {
+    cursor: default;
+}
+
+.whiteboard.mode-draw {
+    cursor: crosshair;
+}
+
+.whiteboard.mode-text {
+    cursor: text;
+}
+
+/* 描画キャンバス */
+#drawCanvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+.whiteboard.mode-move #drawCanvas,
+.whiteboard.mode-text #drawCanvas {
+    pointer-events: none;
+}
+
+/* ネームカード */
+.name-card {
+    position: absolute;
+    z-index: 10;
+    padding: 8px 20px 8px 16px;
+    border-radius: 8px;
+    border: none;
+    box-shadow:
+        0 2px 4px rgba(0, 0, 0, 0.12),
+        0 4px 8px rgba(0, 0, 0, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    font-weight: bold;
+    font-size: 0.95em;
+    cursor: grab;
+    user-select: none;
+    white-space: nowrap;
+    transition: box-shadow 0.2s, transform 0.15s;
+    border-left: 5px solid rgba(0, 0, 0, 0.15);
+    background-image: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 50%);
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.3);
+    letter-spacing: 0.5px;
+}
+
+.name-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 40%;
+    border-radius: 8px 8px 0 0;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.25), transparent);
+    pointer-events: none;
+}
+
+.name-card:hover {
+    transform: translateY(-1px);
+    box-shadow:
+        0 4px 8px rgba(0, 0, 0, 0.15),
+        0 6px 12px rgba(0, 0, 0, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.name-card:active {
+    cursor: grabbing;
+    transform: translateY(0) scale(1.02);
+    box-shadow:
+        0 6px 16px rgba(0, 0, 0, 0.2),
+        0 8px 20px rgba(0, 0, 0, 0.12),
+        inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.name-card.selected {
+    box-shadow:
+        0 0 0 3px var(--primary-color),
+        0 4px 8px rgba(0, 0, 0, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.whiteboard.mode-draw .name-card,
+.whiteboard.mode-text .name-card {
+    pointer-events: none;
+    cursor: default;
+}
+
+/* ボード上テキスト */
+.board-text {
+    position: absolute;
+    z-index: 5;
+    cursor: move;
+    user-select: none;
+    padding: 2px 4px;
+    border-radius: var(--border-radius-small);
+    font-weight: bold;
+}
+
+.board-text:hover {
+    outline: 1px dashed var(--gray);
+}
+
+.board-text.selected {
+    outline: 2px solid var(--primary-color);
+}
+
+.whiteboard.mode-draw .board-text {
+    pointer-events: none;
+}
+
+/* テキスト入力フィールド（一時表示） */
+.board-text-input {
+    position: absolute;
+    z-index: 20;
+    border: 2px solid var(--primary-color);
+    border-radius: var(--border-radius-small);
+    padding: 4px 8px;
+    background: rgba(255, 255, 255, 0.95);
+    outline: none;
+    min-width: 100px;
+}
+
+/* モーダル */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal {
+    background: var(--white);
+    border-radius: var(--border-radius-large);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    width: 90%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-bottom: 1px solid var(--gray-light);
+}
+
+.modal-header h3 {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.modal-header h3 i {
+    color: var(--primary-color);
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 1.2em;
+    cursor: pointer;
+    color: var(--gray-dark);
+    padding: 4px 8px;
+}
+
+.modal-close:hover {
+    color: var(--danger-color);
+}
+
+.modal-body {
+    padding: var(--spacing-lg);
+}
+
+.modal-body textarea {
+    width: 100%;
+    padding: var(--spacing-md);
+    border: 2px solid var(--gray);
+    border-radius: var(--border-radius);
+    font-size: 1em;
+    line-height: 1.6;
+    resize: vertical;
+}
+
+.modal-body textarea:focus {
+    border-color: var(--primary-color);
+    outline: none;
+}
+
+.modal-options {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-md);
+}
+
+.modal-options label {
+    font-weight: 600;
+    font-size: 0.9em;
+    white-space: nowrap;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: space-between;
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-top: 1px solid var(--gray-light);
+}
+
+/* 全画面表示 */
+main:fullscreen,
+main:-webkit-full-screen {
+    background: var(--gray-lighter);
+    padding: var(--spacing-sm);
+    display: flex;
+    flex-direction: column;
+}
+
+main:fullscreen .whiteboard-wrapper,
+main:-webkit-full-screen .whiteboard-wrapper {
+    flex: 1;
+}
+
+main:fullscreen .whiteboard,
+main:-webkit-full-screen .whiteboard {
+    height: 100%;
+    min-height: 0;
+}
+
+main:fullscreen .instructions,
+main:-webkit-full-screen .instructions {
+    display: none;
+}
+
+/* レスポンシブ */
+@media screen and (max-width: 768px) {
+    .toolbar {
+        gap: var(--spacing-sm);
+    }
+
+    .toolbar-group:not(:last-child) {
+        padding-right: var(--spacing-sm);
+    }
+
+    .mode-btn {
+        padding: 6px 10px;
+        font-size: 0.85em;
+    }
+
+    .btn-label {
+        display: none;
+    }
+
+    .whiteboard {
+        min-height: 400px;
+        height: 50vh;
+    }
+}
